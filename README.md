@@ -1,12 +1,12 @@
 
-## ToDo
+## ToDo-Backbone
 
-[Assignment #17](https://github.com/tiy-atl-js-q1-2015/Assignments) from [The Iron Yard's](http://theironyard.com/locations/atlanta/) 12-week Front End Engineering bootcamp Q1 2015.
+[Assignment #18](https://github.com/tiy-atl-js-q1-2015/Assignments) from [The Iron Yard's](http://theironyard.com/locations/atlanta/) 12-week Front End Engineering bootcamp Q1 2015.
 
-A ToDo list app built with TDD/BDD.
+A ToDo list app built using Backbone.
 
 ### Deliverable
-[http://bholben.github.io/ToDo/](http://bholben.github.io/ToDo/)
+[http://bholben.github.io/ToDo-Backbone/](http://bholben.github.io/ToDo-Backbone/)
 
 ### Technologies
   * HTML
@@ -14,13 +14,12 @@ A ToDo list app built with TDD/BDD.
   * Sass (SCSS)
   * JavaScript
   * jQuery
-  * Mocha
-  * Chai
+  * Backbone
 
 ### How to use it
 
 From command line:
-  * `git clone git@github.com:bholben/ToDo.git`
+  * `git clone git@github.com:bholben/ToDo-Backbone.git`
   * `cd ToDo`
   * `npm install`
   * `bower install`
