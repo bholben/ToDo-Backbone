@@ -27,28 +27,23 @@ templates['footer'] = template({"1":function(depth0,helpers,partials,data) {
   return buffer + "\n\n";
 },"useData":true});
 templates['task'] = template({"1":function(depth0,helpers,partials,data) {
-  var stack1, helper, functionType="function", helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, buffer = "  <li ";
-  stack1 = helpers['if'].call(depth0, (depth0 != null ? depth0.completed : depth0), {"name":"if","hash":{},"fn":this.program(2, data),"inverse":this.noop,"data":data});
+  return "class=\"completed\"";
+  },"3":function(depth0,helpers,partials,data) {
+  return "checked";
+  },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+  var stack1, helper, functionType="function", helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, buffer = "\n<li ";
+  stack1 = helpers['if'].call(depth0, (depth0 != null ? depth0.completed : depth0), {"name":"if","hash":{},"fn":this.program(1, data),"inverse":this.noop,"data":data});
   if (stack1 != null) { buffer += stack1; }
   buffer += " data-id=\""
     + escapeExpression(((helper = (helper = helpers._id || (depth0 != null ? depth0._id : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"_id","hash":{},"data":data}) : helper)))
-    + "\">\n    <div class=\"view\">\n      <input class=\"toggle\" type=\"checkbox\" ";
-  stack1 = helpers['if'].call(depth0, (depth0 != null ? depth0.completed : depth0), {"name":"if","hash":{},"fn":this.program(4, data),"inverse":this.noop,"data":data});
+    + "\">\n  <div class=\"view\">\n    <input class=\"toggle\" type=\"checkbox\" ";
+  stack1 = helpers['if'].call(depth0, (depth0 != null ? depth0.completed : depth0), {"name":"if","hash":{},"fn":this.program(3, data),"inverse":this.noop,"data":data});
   if (stack1 != null) { buffer += stack1; }
-  return buffer + ">\n      <label>"
+  return buffer + ">\n    <label>"
     + escapeExpression(((helper = (helper = helpers.title || (depth0 != null ? depth0.title : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"title","hash":{},"data":data}) : helper)))
-    + "</label>\n      <button class=\"destroy\"></button>\n    </div>\n    <input class=\"edit\" value=\""
+    + "</label>\n    <button class=\"destroy\"></button>\n  </div>\n  <input class=\"edit\" value=\""
     + escapeExpression(((helper = (helper = helpers.title || (depth0 != null ? depth0.title : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"title","hash":{},"data":data}) : helper)))
-    + "\">\n  </li>\n";
-},"2":function(depth0,helpers,partials,data) {
-  return "class=\"completed\"";
-  },"4":function(depth0,helpers,partials,data) {
-  return "checked";
-  },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-  var stack1, lambda=this.lambda, blockHelperMissing=helpers.blockHelperMissing, buffer = "\n";
-  stack1 = blockHelperMissing.call(depth0, lambda(depth0, depth0), {"name":"this","hash":{},"fn":this.program(1, data),"inverse":this.noop,"data":data});
-  if (stack1 != null) { buffer += stack1; }
-  return buffer + "\n";
+    + "\">\n</li>\n\n";
 },"useData":true});
 })();
 
@@ -69,67 +64,106 @@ var uuid = function () {
 
 
 
+var app = {};
+
 (function () {
   'use strict';
 
-  window.app = {};
+  ////////////////////////////////// MODEL //////////////////////////////////
 
-  var taskTemplate = Handlebars.templates.task,
-      $form = $('#form'),
-      $newTodo = $('#new-todo'),
-      $todoList = $('#todo-list');
-
+  // Create Task model
   app.Task = Backbone.Model.extend({
 
     idAttribute: '_id',
 
-    defaults: {
-      completed: false,
-      active: true
-    },
+    defaults: { completed: false },
 
     create: function (title) {
-      var self = this;
-      self.set('title', title);
-
-      app.tasks.add(this).save().done(function () {
-        $todoList.prepend(taskTemplate(self.attributes));
-        $newTodo[0].value='';
-      });
-
+      this.set('title', title);
+      app.tasks.add(this).save().done(renderNewTask.bind(this));
     },
 
-    toggleComplete: function () {
+    toggle: function () {
       this.attributes.completed = !this.attributes.completed;
+      this.save();
     },
 
     delete: function () {
-      this.attributes.active = false;
+      this.destroy();
     }
   });
 
+  // Create Tasks collection
   app.Tasks = Backbone.Collection.extend({
     model: app.Task,
-    url: 'http://tiy-atl-fe-server.herokuapp.com/collections/bobs_backbone_test'
+    url: 'http://tiy-atl-fe-server.herokuapp.com/collections/bobs_backbone_tasks'
   });
 
+  // Create tasks collection instance
   app.tasks = new app.Tasks();
+  // Load in any existing server models
+  app.tasks.fetch();
 
-  $form.on('submit', function (e) {
-    e.preventDefault();
-    var task = new app.Task();
-    task.create($newTodo.val());
-  });
 
-  $todoList.on('click', 'input.toggle', function (e) {
-    $(e.target).closest('li').toggleClass('completed');
-    app.tasks.models[0].toggleComplete();
-  });
+  ////////////////////////////////// CONTROL //////////////////////////////////
 
-  $todoList.on('click', 'button.destroy', function (e) {
-    $(e.target).closest('li').addClass('hidden');
-    app.tasks.models[0].delete();
-  });
+  function targetTask(e) {
+    var $li = $(e.target).closest('li'),
+        targetID = $li.attr('data-id'),
+        model = app.tasks.findWhere({_id: targetID});
+    return {$li: $li, model: model};
+  }
+
+  var control = {
+
+    create: function (e) {
+      e.preventDefault();
+      var title = $newTask.val();
+      if (title) {
+        // Create a new model (local and server) & update the view
+        var task = new app.Task();
+        task.create(title);
+      }
+    },
+
+    toggle: function (e) {
+      // Target specific task
+      var task = targetTask(e);
+      // Update the model (local and server)
+      task.model.toggle();
+      // Update the view
+      task.$li.toggleClass('completed');
+    },
+
+    delete: function (e) {
+      // Target specific task
+      var task = targetTask(e);
+      // Update the model (local and server)
+      task.model.delete();
+      // Update the view
+      task.$li.addClass('hidden');
+    }
+  };
+
+
+  ////////////////////////////////// VIEW //////////////////////////////////
+
+  // Cache html elements
+  var taskTemplate = Handlebars.templates.task,
+      $form = $('#form'),
+      $newTask = $('#new-task'),
+      $taskList = $('#task-list');
+
+  // Render the new task at the top of the list and clear the input box
+  function renderNewTask(obj) {
+    $taskList.prepend(taskTemplate(obj));
+    $newTask[0].value='';
+  }
+
+  // Bind events
+  $form.on('submit', control.create.bind(this));
+  $taskList.on('click', 'input.toggle', control.toggle.bind(this));
+  $taskList.on('click', 'button.destroy', control.delete.bind(this));
 
 }());
 
