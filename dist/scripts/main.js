@@ -95,14 +95,20 @@ var app = {};
 
   // Create Tasks collection
   app.Tasks = Backbone.Collection.extend({
+
+    retrieve: function () {
+      this.fetch().done(populateList.bind(this));
+    },
+
     model: app.Task,
+
     url: 'http://tiy-atl-fe-server.herokuapp.com/collections/bobs_backbone_tasks'
   });
 
   // Create tasks collection instance
   app.tasks = new app.Tasks();
-  // Load in any existing server models
-  app.tasks.fetch();
+  // Retrieve in any existing server models
+  app.tasks.retrieve();
 
 
   ////////////////////////////////// CONTROL //////////////////////////////////
@@ -154,10 +160,23 @@ var app = {};
       $newTask = $('#new-task'),
       $taskList = $('#task-list');
 
-  // Render the new task at the top of the list and clear the input box
-  function renderNewTask(obj) {
-    $taskList.prepend(taskTemplate(obj));
+  function renderTopOfList(attrs) {
+    $taskList.prepend(taskTemplate(attrs));
+  }
+
+  function clearInputBox() {
     $newTask[0].value='';
+  }
+
+  function renderNewTask(attrs) {
+    renderTopOfList(attrs);
+    clearInputBox();
+  }
+
+  function populateList() {
+    this.models.reverse().forEach(function (model) {
+      renderTopOfList(model.attributes);
+    })
   }
 
   // Bind events
