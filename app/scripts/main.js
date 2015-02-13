@@ -1,13 +1,13 @@
 
+var app = {};
+
 (function () {
   'use strict';
 
-  window.app = {};
-
   var taskTemplate = Handlebars.templates.task,
       $form = $('#form'),
-      $newTodo = $('#new-todo'),
-      $todoList = $('#todo-list');
+      $newTask = $('#new-task'),
+      $taskList = $('#task-list');
 
   app.Task = Backbone.Model.extend({
 
@@ -18,15 +18,14 @@
       active: true
     },
 
+    render: function () {
+      $taskList.prepend(taskTemplate(JSON.parse(this.data)));
+      $newTask[0].value='';
+    },
+
     create: function (title) {
-      var self = this;
-      self.set('title', title);
-
-      app.tasks.add(this).save().done(function () {
-        $todoList.prepend(taskTemplate(self.attributes));
-        $newTodo[0].value='';
-      });
-
+      this.set('title', title);
+      app.tasks.add(this).save().done(this.render);
     },
 
     toggleComplete: function () {
@@ -45,18 +44,22 @@
 
   app.tasks = new app.Tasks();
 
-  $form.on('submit', function (e) {
+  var newTask = function (e) {
     e.preventDefault();
-    var task = new app.Task();
-    task.create($newTodo.val());
-  });
+    if ($(e.target)[0][0].value !== '') {
+      var task = new app.Task();
+      task.create($newTask.val());
+    }
+  };
 
-  $todoList.on('click', 'input.toggle', function (e) {
+  $form.on('submit', newTask.bind(this));
+
+  $taskList.on('click', 'input.toggle', function (e) {
     $(e.target).closest('li').toggleClass('completed');
     app.tasks.models[0].toggleComplete();
   });
 
-  $todoList.on('click', 'button.destroy', function (e) {
+  $taskList.on('click', 'button.destroy', function (e) {
     $(e.target).closest('li').addClass('hidden');
     app.tasks.models[0].delete();
   });

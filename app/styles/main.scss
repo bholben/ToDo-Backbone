@@ -68,7 +68,7 @@ input[type="checkbox"] {
   }
 }
 
-#new-todo,
+#new-task,
 .edit {
   position: relative;
   margin: 0;
@@ -87,7 +87,7 @@ input[type="checkbox"] {
   box-sizing: border-box;
 }
 
-#new-todo {
+#new-task {
   padding: 16px 16px 16px 60px;
   border: none;
   background: rgba(0, 0, 0, 0.003);
@@ -123,7 +123,7 @@ label[for='toggle-all'] {
   }
 }
 
-#todo-list {
+#task-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -298,11 +298,11 @@ html #clear-completed:active {
 */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   #toggle-all,
-  #todo-list li .toggle {
+  #task-list li .toggle {
     background: none;
   }
 
-  #todo-list li .toggle {
+  #task-list li .toggle {
     height: 40px;
   }
 
