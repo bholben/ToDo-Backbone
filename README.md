@@ -20,7 +20,7 @@ First Backbone app - a ToDo list app built using only models and collections.
 
 From command line:
   * `git clone git@github.com:bholben/ToDo-Backbone.git`
-  * `cd ToDo`
+  * `cd ToDo-Backbone`
   * `npm install`
   * `bower install`
 
